@@ -205,7 +205,23 @@ def AdatomAdatomEnergy(i, adatoms, E_a, r_a):
 				pass # Bins with no atoms are not returned from PutInBins()
 	return sum([PairwisePotential(Ri, Rj, E_as, r_as) for Rj in nearby_adatoms])
 	
+def NearestNeighbors(adatoms):
+	'''
+	I'd like to do the same thing we do to find surface atoms below, but store the 
+	nearest neighbor positions.
+	
+	DO STUFF HERE
+	'''
+	
 def SurfaceAtoms(adatoms):
+	'''
+	Identifies surface adatoms. 
+	Surface atoms are defined as adatoms coordinated by < 5 other atoms.
+
+	adatoms: np.array(np.array[x, y]) - position of adatom
+	
+	returns: List[np.array[x, y]] - list of positions of surface adatoms.
+	'''
 	surfaceAtoms = []	
 	for Ri in adatoms:
 		(nearby_x, nearby_y) = NearbyBins(Ri)
@@ -220,16 +236,22 @@ def SurfaceAtoms(adatoms):
 		nearest_neighbors = []
 		for Rj in nearby_adatoms:
 			d = Displacement(Ri, Rj)
-			if abs(d[0]) < 1.2*r_s and abs(d[1]) < 1.2*r_s:
+			if abs(d[0]) < 1.2*r_a and abs(d[1]) < 1.2*r_a:
 				dist = np.sqrt(np.dot(d,d))
 				if dist == 0:
 					pass
-				elif dist < 1.2*r_s:
-					print Ri, Rj, dist
+				elif dist < 1.2*r_a:
 					nearest_neighbors.append(Rj)
 		if(len(nearest_neighbors) < 5):
 			surfaceAtoms.append(Ri)
 	return surfaceAtoms			
+	
+def U_appx(i, adatoms):
+	Ri = adatoms[i]
+	Uappx = AdatomAdatomEnergy(Ri, adatoms, E_a, r_a) + AdatomSurfaceEnergy(Ri, substrate, E_as, r_as)
+	return Uappx
+	
+
 
 def PlotSubstrate(substrate, color='blue'):
 	for a in substrate:
